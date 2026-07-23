@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Stock {
+  id          String  @id @default(cuid())
+  symbol      String  @unique
+  companyName String
+  market      String
+  sector      String?
+  industry    String?
+
+  currentPrice Float?
+  currency     String?
+
+  recommendations Recommendation[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Recommendation {
+  id String @id @default(cuid())
+
+  stockId String
+  stock   Stock  @relation(fields: [stockId], references: [id], onDelete: Cascade)
+
+  score Float
+
+  recommendation RecommendationType
+
+  reasoning String?
+
+  createdAt DateTime @default(now())
+}
+
+model Watchlist {
+  id String @id @default(cuid())
+
+  symbol String @unique
+
+  createdAt DateTime @default(now())
+}
+
+enum RecommendationType {
+  BUY
+  HOLD
+  SELL
+}
