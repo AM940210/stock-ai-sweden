@@ -16,6 +16,16 @@ export async function POST(req: Request) {
     try{
         const body = await req.json();
 
+        // Validate required fields
+        if (!body.symbol || !body.companyName) {
+            return NextResponse.json(
+                {
+                    error: "symbol and companyName are required.",
+                },
+                { status: 400 }
+            );
+        }
+
         // Check if the stock already exists
         const existingStock = await prisma.stock.findUnique({
             where: {
