@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/lib/prisma";
 import { error } from "console";
+import { stockSchema } from "@/src/lib/validation/stock";
 
 export async function GET() {
     const stocks = await prisma.stock.findMany({
@@ -17,19 +18,24 @@ export async function POST(req: Request) {
         const body = await req.json();
 
         // Validate required fields
-        if (!body.symbol || !body.companyName) {
+        const result = stockSchema.safeParse(body);
+
+        if (!result.success) {
             return NextResponse.json(
                 {
-                    error: "symbol and companyName are required.",
+                    error: "Validation failed",
+                    issues: result.error.flatten().fieldErrors,
                 },
                 { status: 400 }
             );
         }
 
+        const data = result.data;
+
         // Check if the stock already exists
         const existingStock = await prisma.stock.findUnique({
             where: {
-                symbol: body.symbol,
+                symbol: data.symbol,
             },
         });
 
@@ -44,13 +50,13 @@ export async function POST(req: Request) {
 
         const stock = await prisma.stock.create({
             data: {
-                symbol: body.symbol,
-                companyName: body.companyName,
-                market: body.market,
-                sector: body.sector,
-                industry: body.industry,
-                currentPrice: body.currentPrice,
-                currency: body.currency,
+                symbol: data.symbol,
+                companyName: data.companyName,
+                market: data.market,
+                sector: data.sector,
+                industry: data.industry,
+                currentPrice: data.currentPrice,
+                currency: data.currency,
             },
         });
 
