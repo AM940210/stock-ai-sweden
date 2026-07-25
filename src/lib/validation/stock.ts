@@ -13,3 +13,4 @@ export const stockSchema = z.object({
 });
 
 export type StockInput = z.infer<typeof stockSchema>;
+export const updateStockSchema = stockSchema.partial();
