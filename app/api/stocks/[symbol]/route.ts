@@ -108,3 +108,55 @@ export async function PATCH(
         );
     }
 }
+
+export async function DELETE(
+    request: Request,
+    context: RouteContext
+){
+    try {
+        const { symbol } = await context.params;
+
+        const existingStock = await prisma.stock.findUnique({
+            where: {
+                symbol,
+            },
+        });
+
+        if (!existingStock) {
+            return NextResponse.json(
+                {
+                    error: "Stock not found",
+                },
+                {
+                    status: 404,
+                }
+            );
+        }
+
+        await prisma.stock.delete({
+            where: {
+                symbol,
+            },
+        });
+
+        return NextResponse.json(
+            {
+                message: `Stock ${symbol} deleted successfuly.`,
+            },
+            {
+                status: 200,
+            }
+        );
+    } catch (error) {
+        console.error(error);
+
+        return NextResponse.json(
+            {
+                error: "Internal server error",
+            },
+            {
+                status: 500,
+            }
+        );
+    }
+}
