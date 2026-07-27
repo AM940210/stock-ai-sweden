@@ -1,19 +1,24 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 type Props = {
     title: string;
     value: string | number;
 };
 
-export default function DashboardCard({
-    title,
-    value,
-}: Props) {
+export default function DashboardCard({ title, value }: Props) {
     return (
-        <div className="rounded-2xl border bg-white p-6 shadow-sm">
-            <p className="text-gray-500">{title}</p>
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2">
+                <CardTitle className="text-sm text-muted-foreground">
+                    {title}
+                </CardTitle>
+            </CardHeader>
 
-            <h2 className="mt-2 text-3xl fond-bold">
-                {value}
-            </h2>
-        </div>
+            <CardContent>
+                <p className="text-3xl font-bold">
+                    {value}
+                </p>
+            </CardContent>
+        </Card>
     );
 }

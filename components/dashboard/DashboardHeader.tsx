@@ -1,19 +1,23 @@
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+
 export default function DashboardHeader() {
     return (
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
+        <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div>
-                <h1 className="text-4xl font-bold">
+                <h1 className="text-4xl font-bold tracking-tight">
                     Swedish Stock Dashboard
                 </h1>
 
-                <p className="next-gray-500 mt-2">
+                <p className="mt-2 text-muted-foreground">
                     Manage and monitor Swedish stocks.
                 </p>
             </div>
 
-            <button className="rounded-xl bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700 transition">
-                + Add Stock
-            </button>
+            <Button size="lg">
+                <Plus className="mr-2 h-5 2-5" />
+                Add Stock
+            </Button>
         </div>
     );
 }

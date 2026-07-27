@@ -3,7 +3,7 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsCards from "@/components/dashboard/StatsCards";
 import StockTable from "@/components/dashboard/StockTable";
 import { Stock } from "@/src/lib/types";
-import { tr } from "zod/locales";
+import SearchBar from "@/components/dashboard/SearchBar";
 
 
 async function getStocks(): Promise<Stock[]> {
@@ -30,6 +30,8 @@ export default async function StocksPage() {
             <DashboardHeader />
 
             <StatsCards stocks={stocks} />
+
+            <SearchBar />
 
             <StockTable stocks={stocks} />
             
