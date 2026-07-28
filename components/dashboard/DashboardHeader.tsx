@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import AddStockDialog from "./AddStockDialog";
 
 export default function DashboardHeader() {
     return (
@@ -14,10 +15,7 @@ export default function DashboardHeader() {
                 </p>
             </div>
 
-            <Button size="lg">
-                <Plus className="mr-2 h-5 2-5" />
-                Add Stock
-            </Button>
+            <AddStockDialog />
         </div>
     );
 }
