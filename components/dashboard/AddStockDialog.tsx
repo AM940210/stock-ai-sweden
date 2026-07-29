@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
-
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -14,8 +15,52 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 
+import {
+    StockFormValues,
+    stockSchema,
+} from "@/lib/validators/stock";
+
+
 export default function AddStockDialog() {
     const [open, setOpen] = useState(false);
+
+    const form = useForm<StockFormValues>({
+        resolver: zodResolver(stockSchema),
+        defaultValues: {
+            symbol: "",
+            companyName: "",
+            market: "",
+            sector: "",
+            currentPrice: 0,
+            currency: "SEK",
+        },
+    });
+
+    const router = useRouter();
+
+    const onSubmit = async (values: StockFormValues) => {
+        try {
+            const response = await fetch("/api/stocks", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(values),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to create stock");
+            }
+
+            form.reset();
+
+            setOpen(false);
+
+            router.refresh();
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -29,7 +74,10 @@ export default function AddStockDialog() {
                     <DialogTitle>Add New Stock</DialogTitle>
                 </DialogHeader>
 
-                <form className="space-y-4">
+                <form 
+                    className="space-y-4"
+                    onSubmit={form.handleSubmit(onSubmit)}
+                >
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div>
                             <label className="mb-2 block text-sm font-medium">
@@ -39,6 +87,7 @@ export default function AddStockDialog() {
                             <input 
                                 className="w-full rounded-md border px-3 py-2"
                                 placeholder="INVE-B"
+                                {...form.register("symbol")}
                             />
                         </div>
 
@@ -50,6 +99,7 @@ export default function AddStockDialog() {
                             <input 
                                 className="w-full rounded-md border px-3 py-2"
                                 placeholder="Investor AB"
+                                {...form.register("companyName")}
                             />
                         </div>
                     </div>
@@ -63,6 +113,7 @@ export default function AddStockDialog() {
                             <input 
                                 className="w-full rounded-md border px-3 py-2"
                                 placeholder="NASDAQ Stockholm"
+                                {...form.register("market")}
                             />
                         </div>
 
@@ -74,6 +125,7 @@ export default function AddStockDialog() {
                             <input 
                                 className="w-full rounded-md border px-3 py-2"
                                 placeholder="Financials"
+                                {...form.register("sector")}
                             />
                         </div>
                     </div>
@@ -88,6 +140,10 @@ export default function AddStockDialog() {
                                 type="number"
                                 className="w-full rounded-md border px-3 py-2"
                                 placeholder="322.50"
+                                step="0.01"
+                                {...form.register("currentPrice", {
+                                    valueAsNumber: true,
+                                })}
                             />
                         </div>
 
@@ -96,7 +152,10 @@ export default function AddStockDialog() {
                                 Currency
                             </label>
 
-                            <select className="w-full rounded-md border px-3 py-2">
+                            <select 
+                                className="w-full rounded-md border px-3 py-2"
+                                {...form.register("currency")}
+                            >
                                 <option>SEK</option>
                                 <option>USD</option>
                                 <option>EUR</option>
