@@ -1,14 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Pencil } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
@@ -18,13 +16,21 @@ import {
 } from "@/components/ui/dialog";
 
 import {
-    StockFormValues,
     stockSchema,
+    type StockFormValues,
 } from "@/lib/validators/stock";
 
+import type { Stock } from "@/lib/types";
 
-export default function AddStockDialog() {
+type EditStockDialogProps = {
+    stock: Stock;
+};
+
+export default function EditStockDialog({
+    stock,
+}: EditStockDialogProps) {
     const [open, setOpen] = useState(false);
+    const router = useRouter();
 
     const form = useForm<StockFormValues>({
         resolver: zodResolver(stockSchema),
@@ -38,12 +44,23 @@ export default function AddStockDialog() {
         },
     });
 
-    const router = useRouter();
+    useEffect(() => {
+        if (open) {
+            form.reset({
+                symbol: stock.symbol,
+                companyName: stock.companyName,
+                market: stock.market,
+                sector: stock.sector ?? "",
+                currentPrice: stock.currentPrice ?? 0,
+                currency: stock.currency ?? "SEK",
+            });
+        }
+    }, [open, stock, form]);
 
     const onSubmit = async (values: StockFormValues) => {
         try {
-            const response = await fetch("/api/stocks", {
-                method: "POST",
+            const response = await fetch(`/api/stocks/${stock.symbol}`, {
+                method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -51,30 +68,25 @@ export default function AddStockDialog() {
             });
 
             if (!response.ok) {
-                throw new Error("Failed to create stock");
+                throw new Error("Failed to update stock");
             }
 
-            form.reset();
-
             setOpen(false);
-
             router.refresh();
         } catch (error) {
             console.error(error);
         }
-    };
-
+    }
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90">
-                <Plus className="mr-2 h-4 w-4" />
-                Add Stock
+            <DialogTrigger className="inline-flex h-10 w-10 items-center justify-center rounded-md border hover:bg-accent">
+                <Pencil className="h-4 w-4" />
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-xl">
                 <DialogHeader>
-                    <DialogTitle>Add New Stock</DialogTitle>
+                    <DialogTitle>Edit Stock</DialogTitle>
                 </DialogHeader>
 
                 <form 
@@ -176,11 +188,11 @@ export default function AddStockDialog() {
                         </Button>
 
                         <Button type="submit">
-                            Create Stock
+                            Save Changes
                         </Button>
                     </div>
                 </form>
             </DialogContent>
         </Dialog>
-    )
+    );
 }

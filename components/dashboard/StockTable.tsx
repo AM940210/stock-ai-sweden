@@ -1,4 +1,5 @@
 import { Stock } from "@/src/lib/types";
+import EditStockDialog from "./EditStockDialog";
 
 import {
   Table,
@@ -63,12 +64,9 @@ export default function StockTable({ stocks }: Props) {
 
               <TableCell>
                 <div className="flex justify-center gap-2">
-                  <Button 
-                    variant="outline"
-                    size="icon"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
+          
+                  <EditStockDialog stock={stock} />
+
 
                   <Button 
                     variant="destructive"
