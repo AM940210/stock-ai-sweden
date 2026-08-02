@@ -1,5 +1,3 @@
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import AddStockDialog from "./AddStockDialog";
 
 export default function DashboardHeader() {

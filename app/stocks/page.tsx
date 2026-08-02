@@ -4,6 +4,7 @@ import StatsCards from "@/components/dashboard/StatsCards";
 import StockTable from "@/components/dashboard/StockTable";
 import { Stock } from "@/lib/types";
 import SearchBar from "@/components/dashboard/SearchBar";
+import StocksClient from "./StocksClient";
 
 
 async function getStocks(): Promise<Stock[]> {
@@ -24,17 +25,5 @@ async function getStocks(): Promise<Stock[]> {
 export default async function StocksPage() {
     const stocks = await getStocks();
 
-    return (
-        <main className="max-w-7xl mx-auto p-8">
-            
-            <DashboardHeader />
-
-            <StatsCards stocks={stocks} />
-
-            <SearchBar />
-
-            <StockTable stocks={stocks} />
-            
-        </main>
-    );
+    return <StocksClient stocks={stocks} />;
 }
