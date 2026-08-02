@@ -1,4 +1,4 @@
-import { Stock } from "@/src/lib/types";
+import { Stock } from "@/lib/types";
 import EditStockDialog from "./EditStockDialog";
 
 import {
@@ -11,9 +11,8 @@ import {
 } from "@/components/ui/table";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 
-import { Pencil, Trash2 } from "lucide-react";
+import DeleteStockDialog from "./DeleteStockDialog";
 
 type Props = {
   stocks: Stock[];
@@ -67,13 +66,8 @@ export default function StockTable({ stocks }: Props) {
           
                   <EditStockDialog stock={stock} />
 
-
-                  <Button 
-                    variant="destructive"
-                    size="icon"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <DeleteStockDialog stock={stock} />
+                  
                 </div>
               </TableCell>
             </TableRow>

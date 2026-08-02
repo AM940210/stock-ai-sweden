@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/src/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { updateStockSchema } from "@/src/lib/validation/stock";
 
 type RouteContext = {

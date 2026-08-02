@@ -2,7 +2,7 @@ import DashboardCard from "@/components/dashboard/DashboardCard";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsCards from "@/components/dashboard/StatsCards";
 import StockTable from "@/components/dashboard/StockTable";
-import { Stock } from "@/src/lib/types";
+import { Stock } from "@/lib/types";
 import SearchBar from "@/components/dashboard/SearchBar";
 
 

@@ -1,4 +1,4 @@
-import { Stock } from "@/src/lib/types";
+import { Stock } from "@/lib/types";
 import DashboardCard from "./DashboardCard";
 
 type Props = {
