@@ -1,4 +1,3 @@
-import { error } from "console";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -13,19 +12,19 @@ export async function GET(request: NextRequest) {
 
     try {
         const response = await fetch(
-            `https://finnhub.io/api/v1/stock/profile2?symbol=${encodeURIComponent(symbol)}&token=${process.env.FINNHUB_API_KEY}`
+            `https://financialmodelingprep.com/stable/profile?symbol=${encodeURIComponent(
+                symbol
+            )}&apikey=${process.env.FMP_API_KEY}`
         );
 
         if (!response.ok) {
-            const errorText = await response.text();
-
-            console.error("Finnhub Error:", response.status, errorText);
+            const text = await response.text();
 
             return NextResponse.json(
                 {
-                    error: "Finnhub request failed",
+                    error: "FMP request failed",
                     status: response.status,
-                    details: errorText,
+                    details: text,
                 },
                 {
                     status: response.status,
@@ -40,8 +39,12 @@ export async function GET(request: NextRequest) {
         console.error(error);
 
         return NextResponse.json(
-            { error: error instanceof Error ? error.message : "Unknown error"},
-            { status: 500 }
+            {
+                error: "Failed to fetch company profile",
+            },
+            {
+                status: 500,
+            }
         );
     }
 }
