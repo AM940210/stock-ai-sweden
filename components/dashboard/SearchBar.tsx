@@ -8,6 +8,7 @@ import type {
 
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type SearchBarProps = {
     value: string;
@@ -20,6 +21,8 @@ export default function SearchBar({
 }: SearchBarProps) {
     const [results, setResults] = useState<FinnhubSearchResult[]>([]);
     const [loading, setLoading] = useState(false);
+
+    const router = useRouter();
 
     useEffect(() => {
         if (value.trim().length < 2) {
@@ -76,6 +79,11 @@ export default function SearchBar({
                             key={stock.symbol}
                             type="button"
                             className="block w-full border-b p-4 text-left hover:bg-muted"
+                            onClick={() => {
+                                setResults([]);
+                                onChange("");
+                                router.push(`/stocks/${encodeURIComponent(stock.symbol)}`);
+                            }}
                         >
                             <div className="font-semibold">
                                 {stock.displaySymbol}
