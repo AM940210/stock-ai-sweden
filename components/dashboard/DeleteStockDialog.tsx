@@ -61,7 +61,8 @@ export default function DeleteStockDialog({
                     <DialogTitle>Delete Stock</DialogTitle>
 
                     <DialogDescription>
-                        Are you sure you want to delete{""}
+                        Are you sure you want to delete{""} 
+                        
                         <strong>
                             {stock.companyName} ({stock.symbol})
                         </strong>
