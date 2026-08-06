@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/src/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { error } from "console";
-import { stockSchema } from "@/src/lib/validation/stock";
+import { stockSchema } from "@/lib/validators/stock";
 
 export async function GET() {
     const stocks = await prisma.stock.findMany({
