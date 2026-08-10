@@ -34,7 +34,18 @@ export async function GET(request: NextRequest) {
 
         const data = await response.json();
 
-        return NextResponse.json(data);
+        if (!Array.isArray(data) || data.length === 0) {
+            return NextResponse.json(
+                {
+                    error: "Company not found",
+                },
+                {
+                    status: 404,
+                }
+            );
+        }
+
+        return NextResponse.json(data[0]);
     } catch (error) {
         console.error(error);
 
