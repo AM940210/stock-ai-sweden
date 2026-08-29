@@ -1,4 +1,5 @@
 import CompanyHeader from "@/components/stock/CompanyHeader";
+import QuoteCard from "@/components/stock/QuoteCard";
 
 type CompanyProfile = {
     symbol: string;
@@ -14,6 +15,13 @@ type CompanyProfile = {
     ceo: string;
     marketCap: number;
     country: string;
+};
+
+type Quote = {
+    symbol: string;
+    price: number;
+    change: number;
+    changePercentage: number;
 };
 
 type Props = {
@@ -42,11 +50,31 @@ export default async function StockDetailsPage({
 }: Props) {
     const { symbol } = await params;
 
-    const company = await getCompany(symbol);
+    const [company, quote] = await Promise.all([
+        getCompany(symbol),
+        getQuote(symbol),
+    ]);
 
     return (
-        <main className="max-w-7xl mx-auto p-8">
+        <main className="mx-auto max-w-7xl space-y-6 p-8">
             <CompanyHeader company={company} />
+
+            <QuoteCard quote={quote} />
         </main>
     );
+}
+
+async function getQuote(symbol: string): Promise<Quote> {
+    const res = await fetch(
+        `http://localhost:3000/api/quote?symbol=${encodeURIComponent(symbol)}`,
+        {
+            cache: "no-store",
+        }
+    );
+
+    if (!res.ok) {
+        throw new Error("Failed to fetch quote");
+    }
+
+    return res.json();
 }
