@@ -1,5 +1,7 @@
 import CompanyHeader from "@/components/stock/CompanyHeader";
 import PriceChart from "@/components/stock/PriceChart";
+import IncomeStatement from "@/components/stock/IncomeStatement";
+import type { IncomeStatementData } from "@/lib/types";
 
 type CompanyProfile = {
     symbol: string;
@@ -71,14 +73,34 @@ async function getHistoricalPrices(
     return res.json();
 }
 
+async function getIncomeStatement(
+    symbol: string
+): Promise<IncomeStatementData[]> {
+    const res = await fetch(
+        `http://localhost:3000/api/financials/income?symbol=${encodeURIComponent(
+            symbol
+        )}`,
+        {
+            cache: "no-store",
+        }
+    );
+
+    if (!res.ok) {
+        throw new Error("Failed to fetch income statement");
+    }
+
+    return res.json();
+}
+
 export default async function StockDetailsPage({
     params,
 }: Props) {
     const { symbol } = await params;
 
-    const [company, history] = await Promise.all([
+    const [company, history, income] = await Promise.all([
         getCompany(symbol),
         getHistoricalPrices(symbol),
+        getIncomeStatement(symbol),
     ]);
 
     return (
@@ -86,6 +108,8 @@ export default async function StockDetailsPage({
             <CompanyHeader company={company} />
 
             <PriceChart data={history} />
+
+            <IncomeStatement data={income} />
         </main>
     );
 }
