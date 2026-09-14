@@ -21,3 +21,23 @@ export type IncomeStatementData = {
     netIncome: number;
     epsDiluted: number;
 };
+
+export type FinancialMetrics = {
+  symbol: string;
+
+  grossProfitMarginTTM: number | null;
+  operatingProfitMarginTTM: number | null;
+  netProfitMarginTTM: number | null;
+
+  returnOnEquityTTM: number | null;
+  returnOnAssetsTTM: number | null;
+
+  debtToEquityTTM: number | null;
+  currentRatioTTM: number | null;
+
+  priceToEarningsRatioTTM: number | null;
+  priceToSalesRatioTTM: number | null;
+  priceToBookRatioTTM: number | null;
+
+  dividendYieldTTM: number | null;
+};
