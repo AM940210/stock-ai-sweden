@@ -41,3 +41,14 @@ export type FinancialMetrics = {
 
   dividendYieldTTM: number | null;
 };
+
+export type StockNews = {
+  uuid: string;
+  title: string;
+  description: string | null;
+  snippet: string | null;
+  url: string;
+  image_url: string | null;
+  published_at: string;
+  source: string;
+};
