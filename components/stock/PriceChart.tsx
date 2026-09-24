@@ -138,12 +138,9 @@ export default function PriceChart({
         ).format(new Date(date));
     }
 
-    function formatAxisDate(
-        date: string
-    ) {
-        const options =
-            range === "1M" ||
-            range === "3M"
+    function formatAxisDate(date: string) {
+        const options: Intl.DateTimeFormatOptions =
+            range === "1M" || range === "3M"
                 ? {
                       month: "short",
                       day: "numeric",
@@ -360,8 +357,8 @@ export default function PriceChart({
                                 labelFormatter={(
                                     value
                                 ) =>
-                                    formatDate(
-                                        value
+                                    formatDate(String
+                                        (value)
                                     )
                                 }
                                 formatter={(

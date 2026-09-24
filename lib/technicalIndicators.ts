@@ -3,7 +3,7 @@ export type PricePoint = {
     close: number;
 };
 
-export type TecknicalPricePoint = PricePoint & {
+export type TechnicalPricePoint = PricePoint & {
     sma20: number | null;
     sma50: number | null;
     sma200: number | null;
