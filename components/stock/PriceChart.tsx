@@ -11,50 +11,55 @@ import {
     ResponsiveContainer,
 } from "recharts";
 
-type HistoricalPrice = {
-    date: string;
-    close: number;
-};
+import {
+    calculateTechnicalIndicators,
+    type PricePoint,
+} from "@/lib/technicalIndicators";
 
 type Props = {
-    data: HistoricalPrice[];
+    data: PricePoint[];
 };
 
 type Range = "1M" | "3M" | "6M" | "1Y" | "5Y" | "MAX";
 
-const ranges: Range[] = ["1M", "3M", "6M", "1Y", "5Y", "MAX"];
+const ranges: Range[] = [
+    "1M",
+    "3M",
+    "6M",
+    "1Y",
+    "5Y",
+    "MAX",
+];
 
-function formatDate(date: string) {
-    return new Intl.DateTimeFormat("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-    }).format(new Date(date));
-}
+export default function PriceChart({
+    data,
+}: Props) {
+    const [range, setRange] =
+        useState<Range>("1Y");
 
-function formatAxisDate(date: string, range: Range) {
-    const options: Intl.DateTimeFormatOptions =
-        range === "1M" || range === "3M"
-            ? {
-                  month: "short",
-                  day: "numeric",
-              }
-            : {
-                  month: "short",
-                  year: "2-digit",
-              };
+    const [showSMA20, setShowSMA20] =
+        useState(false);
 
-    return new Intl.DateTimeFormat("en-US", options).format(
-        new Date(date)
+    const [showSMA50, setShowSMA50] =
+        useState(false);
+
+    const [showSMA200, setShowSMA200] =
+        useState(false);
+
+    const [showEMA20, setShowEMA20] =
+        useState(false);
+
+    const [showEMA50, setShowEMA50] =
+        useState(false);
+
+    const technicalData = useMemo(
+        () => calculateTechnicalIndicators(data),
+        [data]
     );
-}
-
-export default function PriceChart({ data }: Props) {
-    const [range, setRange] = useState<Range>("1Y");
 
     const filteredData = useMemo(() => {
         if (range === "MAX") {
-            return data;
+            return technicalData;
         }
 
         const months = {
@@ -65,87 +70,236 @@ export default function PriceChart({ data }: Props) {
             "5Y": 60,
         }[range];
 
-        if (!data.length) {
+        if (!technicalData.length) {
             return [];
         }
 
         const latestDate = new Date(
             Math.max(
-                ...data.map((item) =>
+                ...technicalData.map((item) =>
                     new Date(item.date).getTime()
                 )
             )
         );
 
-        const startDate = new Date(latestDate);
-        startDate.setMonth(startDate.getMonth() - months);
-
-        return data.filter(
-            (item) => new Date(item.date) >= startDate
+        const startDate = new Date(
+            latestDate
         );
-    }, [data, range]);
+
+        startDate.setMonth(
+            startDate.getMonth() - months
+        );
+
+        return technicalData.filter(
+            (item) =>
+                new Date(item.date) >=
+                startDate
+        );
+    }, [technicalData, range]);
 
     const chartData = [...filteredData]
         .reverse()
         .map((item) => ({
             date: item.date,
             price: item.close,
+            sma20: item.sma20,
+            sma50: item.sma50,
+            sma200: item.sma200,
+            ema20: item.ema20,
+            ema50: item.ema50,
         }));
 
-    const firstPrice = chartData[0]?.price ?? 0;
+    const firstPrice =
+        chartData[0]?.price ?? 0;
+
     const lastPrice =
-        chartData[chartData.length - 1]?.price ?? 0;
+        chartData[
+            chartData.length - 1
+        ]?.price ?? 0;
 
     const performance =
         firstPrice > 0
-            ? ((lastPrice - firstPrice) / firstPrice) * 100
+            ? ((lastPrice - firstPrice) /
+                  firstPrice) *
+              100
             : 0;
 
-    const isPositive = performance >= 0;
+    const isPositive =
+        performance >= 0;
+
+    function formatDate(date: string) {
+        return new Intl.DateTimeFormat(
+            "en-US",
+            {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+            }
+        ).format(new Date(date));
+    }
+
+    function formatAxisDate(
+        date: string
+    ) {
+        const options =
+            range === "1M" ||
+            range === "3M"
+                ? {
+                      month: "short",
+                      day: "numeric",
+                  }
+                : {
+                      month: "short",
+                      year: "2-digit",
+                  };
+
+        return new Intl.DateTimeFormat(
+            "en-US",
+            options
+        ).format(new Date(date));
+    }
 
     return (
         <div className="rounded-xl border bg-background p-6 shadow-sm">
-            <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <div>
-                    <div className="flex items-center gap-3">
-                        <h2 className="text-xl font-semibold">
-                            Price History
-                        </h2>
+            <div className="mb-6 flex flex-col gap-4">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div>
+                        <div className="flex items-center gap-3">
+                            <h2 className="text-xl font-semibold">
+                                Price History
+                            </h2>
 
-                        {chartData.length > 0 && (
-                            <span
-                                className={`text-sm font-semibold ${
-                                    isPositive
-                                        ? "text-green-600"
-                                        : "text-red-600"
-                                }`}
-                            >
-                                {isPositive ? "+" : ""}
-                                {performance.toFixed(2)}%
-                            </span>
-                        )}
+                            {chartData.length >
+                                0 && (
+                                <span
+                                    className={`text-sm font-semibold ${
+                                        isPositive
+                                            ? "text-green-600"
+                                            : "text-red-600"
+                                    }`}
+                                >
+                                    {isPositive
+                                        ? "+"
+                                        : ""}
+                                    {performance.toFixed(
+                                        2
+                                    )}
+                                    %
+                                </span>
+                            )}
+                        </div>
+
+                        <p className="text-sm text-muted-foreground">
+                            Historical closing price ·{" "}
+                            {range}
+                        </p>
                     </div>
 
-                    <p className="text-sm text-muted-foreground">
-                        Historical closing price · {range}
-                    </p>
+                    <div className="flex flex-wrap gap-2">
+                        {ranges.map(
+                            (item) => (
+                                <button
+                                    key={item}
+                                    type="button"
+                                    onClick={() =>
+                                        setRange(
+                                            item
+                                        )
+                                    }
+                                    className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
+                                        range ===
+                                        item
+                                            ? "bg-primary text-primary-foreground"
+                                            : "border bg-background hover:bg-muted"
+                                    }`}
+                                >
+                                    {item}
+                                </button>
+                            )
+                        )}
+                    </div>
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                    {ranges.map((item) => (
-                        <button
-                            key={item}
-                            type="button"
-                            onClick={() => setRange(item)}
-                            className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
-                                range === item
-                                    ? "bg-primary text-primary-foreground"
-                                    : "border bg-background hover:bg-muted"
-                            }`}
-                        >
-                            {item}
-                        </button>
-                    ))}
+                    <button
+                        type="button"
+                        onClick={() =>
+                            setShowSMA20(
+                                !showSMA20
+                            )
+                        }
+                        className={`rounded-md border px-3 py-1.5 text-sm ${
+                            showSMA20
+                                ? "bg-muted font-semibold"
+                                : ""
+                        }`}
+                    >
+                        SMA 20
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() =>
+                            setShowSMA50(
+                                !showSMA50
+                            )
+                        }
+                        className={`rounded-md border px-3 py-1.5 text-sm ${
+                            showSMA50
+                                ? "bg-muted font-semibold"
+                                : ""
+                        }`}
+                    >
+                        SMA 50
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() =>
+                            setShowSMA200(
+                                !showSMA200
+                            )
+                        }
+                        className={`rounded-md border px-3 py-1.5 text-sm ${
+                            showSMA200
+                                ? "bg-muted font-semibold"
+                                : ""
+                        }`}
+                    >
+                        SMA 200
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() =>
+                            setShowEMA20(
+                                !showEMA20
+                            )
+                        }
+                        className={`rounded-md border px-3 py-1.5 text-sm ${
+                            showEMA20
+                                ? "bg-muted font-semibold"
+                                : ""
+                        }`}
+                    >
+                        EMA 20
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() =>
+                            setShowEMA50(
+                                !showEMA50
+                            )
+                        }
+                        className={`rounded-md border px-3 py-1.5 text-sm ${
+                            showEMA50
+                                ? "bg-muted font-semibold"
+                                : ""
+                        }`}
+                    >
+                        EMA 50
+                    </button>
                 </div>
             </div>
 
@@ -174,11 +328,8 @@ export default function PriceChart({ data }: Props) {
 
                             <XAxis
                                 dataKey="date"
-                                tickFormatter={(value) =>
-                                    formatAxisDate(
-                                        value,
-                                        range
-                                    )
+                                tickFormatter={
+                                    formatAxisDate
                                 }
                                 tick={{
                                     fontSize: 12,
@@ -187,34 +338,120 @@ export default function PriceChart({ data }: Props) {
                             />
 
                             <YAxis
-                                domain={["auto", "auto"]}
+                                domain={[
+                                    "auto",
+                                    "auto",
+                                ]}
                                 tick={{
                                     fontSize: 12,
                                 }}
-                                tickFormatter={(value) =>
-                                    `$${Number(value).toFixed(0)}`
+                                tickFormatter={(
+                                    value
+                                ) =>
+                                    `$${Number(
+                                        value
+                                    ).toFixed(
+                                        0
+                                    )}`
                                 }
                             />
 
                             <Tooltip
-                                labelFormatter={(value) =>
-                                    formatDate(value)
+                                labelFormatter={(
+                                    value
+                                ) =>
+                                    formatDate(
+                                        value
+                                    )
                                 }
-                                formatter={(value) => [
-                                    `$${Number(value).toFixed(2)}`,
-                                    "Close",
+                                formatter={(
+                                    value,
+                                    name
+                                ) => [
+                                    `$${Number(
+                                        value
+                                    ).toFixed(
+                                        2
+                                    )}`,
+                                    name,
                                 ]}
                             />
 
                             <Line
                                 type="monotone"
                                 dataKey="price"
+                                name="Price"
                                 strokeWidth={2}
                                 dot={false}
                                 activeDot={{
                                     r: 5,
                                 }}
                             />
+
+                            {showSMA20 && (
+                                <Line
+                                    type="monotone"
+                                    dataKey="sma20"
+                                    name="SMA 20"
+                                    strokeWidth={
+                                        1.5
+                                    }
+                                    dot={false}
+                                    connectNulls
+                                />
+                            )}
+
+                            {showSMA50 && (
+                                <Line
+                                    type="monotone"
+                                    dataKey="sma50"
+                                    name="SMA 50"
+                                    strokeWidth={
+                                        1.5
+                                    }
+                                    dot={false}
+                                    connectNulls
+                                />
+                            )}
+
+                            {showSMA200 && (
+                                <Line
+                                    type="monotone"
+                                    dataKey="sma200"
+                                    name="SMA 200"
+                                    strokeWidth={
+                                        1.5
+                                    }
+                                    dot={false}
+                                    connectNulls
+                                />
+                            )}
+
+                            {showEMA20 && (
+                                <Line
+                                    type="monotone"
+                                    dataKey="ema20"
+                                    name="EMA 20"
+                                    strokeWidth={
+                                        1.5
+                                    }
+                                    dot={false}
+                                    connectNulls
+                                />
+                            )}
+
+                            {showEMA50 && (
+                                <Line
+                                    type="monotone"
+                                    dataKey="ema50"
+                                    name="EMA 50"
+                                    strokeWidth={
+                                        1.5
+                                    }
+                                    dot={false}
+                                    connectNulls
+                                />
+                            )}
                         </LineChart>
                     </ResponsiveContainer>
                 )}
