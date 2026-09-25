@@ -8,6 +8,8 @@ import type {
 } from "@/lib/types";
 import FinancialMetrics from "@/components/stock/FinancialMetrics";
 import NewsSection from "@/components/stock/NewsSection";
+import RSIChart from "@/components/stock/RSIChart";
+import { calculateTechnicalIndicators } from "@/lib/technicalIndicators";
 
 type CompanyProfile = {
     symbol: string;
@@ -152,6 +154,18 @@ export default async function StockDetailsPage({
             <CompanyHeader company={company} />
 
             <PriceChart data={history} />
+
+            <RSIChart
+                data={history.map((item, index) => {
+                    const technicalData =
+                        calculateTechnicalIndicators(history);
+                        
+                    return {
+                        date: item.date,
+                        rsi14: technicalData[index].rsi14,
+                    };
+                })}
+            />
 
             <IncomeStatement data={income} />
 
