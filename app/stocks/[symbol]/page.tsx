@@ -10,6 +10,7 @@ import FinancialMetrics from "@/components/stock/FinancialMetrics";
 import NewsSection from "@/components/stock/NewsSection";
 import RSIChart from "@/components/stock/RSIChart";
 import { calculateTechnicalIndicators } from "@/lib/technicalIndicators";
+import MACDChart from "@/components/stock/MACDChart";
 
 type CompanyProfile = {
     symbol: string;
@@ -149,23 +150,18 @@ export default async function StockDetailsPage({
         getNews(symbol),
     ]);
 
+    const technicalData =
+        calculateTechnicalIndicators(history)
+
     return (
         <main className="mx-auto max-w-7xl space-y-6 p-8">
             <CompanyHeader company={company} />
 
             <PriceChart data={history} />
 
-            <RSIChart
-                data={history.map((item, index) => {
-                    const technicalData =
-                        calculateTechnicalIndicators(history);
-                        
-                    return {
-                        date: item.date,
-                        rsi14: technicalData[index].rsi14,
-                    };
-                })}
-            />
+            <RSIChart data={technicalData} />
+
+            <MACDChart data={technicalData} />
 
             <IncomeStatement data={income} />
 

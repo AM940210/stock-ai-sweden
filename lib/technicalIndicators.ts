@@ -10,6 +10,9 @@ export type TechnicalPricePoint = PricePoint & {
     ema20: number | null;
     ema50: number | null;
     rsi14: number | null;
+    macd: number | null;
+    macdSignal: number | null;
+    macdHistogram: number | null;
 };
 
 export function calculateSMA(
@@ -81,6 +84,68 @@ export function calculateEMA(
     });
 
     return result;
+}
+
+export function calculateMACD(
+    prices: number[],
+    fastPeriod: number = 12,
+    slowPeriod: number = 26,
+    signalPeriod: number = 9
+) {
+    const fastEMA = calculateEMA(prices, fastPeriod);
+    const slowEMA = calculateEMA(prices, slowPeriod);
+
+    const macdLine: (number | null)[] =
+        prices.map((_, index) => {
+            const fast = fastEMA[index];
+            const slow = slowEMA[index];
+
+            if (fast === null || slow === null) {
+                return null;
+            }
+
+            return fast - slow;
+        });
+    
+    const macdValues = macdLine.filter(
+        (value): value is number => value !== null
+    );
+
+    const signalValues = calculateEMA(
+        macdValues,
+        signalPeriod
+    );
+
+    const signalLine: (number | null)[] =
+        new Array(prices.length).fill(null);
+    
+    let signalIndex = 0;
+
+    for (let i = 0; i < macdLine.length; i++) {
+        if (macdLine[i] !== null) {
+            signalLine[i] =
+                signalValues[signalIndex] ?? null;
+
+            signalIndex++;
+        }
+    }
+
+    const histogram: (number | null)[] =
+        macdLine.map((macd, index) => {
+            const signal = signalLine[index];
+
+            if (macd === null || signal === null) {
+                return null;
+            }
+
+            return macd - signal;
+        });
+
+    return {
+        macd: macdLine,
+        macdSignal: signalLine,
+        macdHistogram: histogram,
+    };
 }
 
 export function calculateRSI(
@@ -188,6 +253,12 @@ export function calculateTechnicalIndicators(
 
     const rsi14 = calculateRSI(prices, 14);
 
+    const {
+        macd,
+        macdSignal,
+        macdHistogram,
+    } = calculateMACD(prices);
+
     return sortedData.map((item, index) => ({
         ...item,
         sma20: sma20[index],
@@ -196,5 +267,8 @@ export function calculateTechnicalIndicators(
         ema20: ema20[index],
         ema50: ema50[index],
         rsi14: rsi14[index],
+        macd: macd[index],
+        macdSignal: macdSignal[index],
+        macdHistogram: macdHistogram[index],
     }));
 }
