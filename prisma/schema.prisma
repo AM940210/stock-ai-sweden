@@ -25,6 +25,30 @@ model Stock {
   updatedAt DateTime @updatedAt
 }
 
+model HistoricalPrice {
+  id String @id @default(cuid())
+
+  symbol  String
+  date    DateTime
+
+  open    Float
+  high    Float
+  low     Float
+  close   Float
+  volume  Float
+
+  change        Float?
+  changePercent Float?
+  vwap          Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([symbol, date])
+  @@index([symbol])
+  @@index([symbol, date])
+}
+
 model Recommendation {
   id String @id @default(cuid())
 
