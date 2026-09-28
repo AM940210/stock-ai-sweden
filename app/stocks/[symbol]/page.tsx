@@ -11,6 +11,7 @@ import NewsSection from "@/components/stock/NewsSection";
 import RSIChart from "@/components/stock/RSIChart";
 import { calculateTechnicalIndicators } from "@/lib/technicalIndicators";
 import MACDChart from "@/components/stock/MACDChart";
+// import VolatilityCard from "@/components/stock/VolatilityCard";
 
 type CompanyProfile = {
     symbol: string;
@@ -76,7 +77,17 @@ async function getHistoricalPrices(
     );
 
     if (!res.ok) {
-        throw new Error("Failed to fetch historical prices");
+        const errorText = await res.text();
+
+        console.error(
+            "Historical prices error:",
+            res.status,
+            errorText
+        );
+
+        throw new Error(
+            `Failed to fetch historical prices: ${res.status}`
+        );
     }
 
     return res.json();
@@ -162,6 +173,16 @@ export default async function StockDetailsPage({
             <RSIChart data={technicalData} />
 
             <MACDChart data={technicalData} />
+
+            {/*
+            <VolatilityCard 
+                volatility={
+                    technicalData[
+                        technicalData.length - 1
+                    ]?.volatility ?? null
+                }
+            />
+            */}
 
             <IncomeStatement data={income} />
 

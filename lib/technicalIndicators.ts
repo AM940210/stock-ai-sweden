@@ -1,3 +1,5 @@
+import { number } from "zod";
+
 export type PricePoint = {
     date: string;
     close: number;
@@ -13,6 +15,7 @@ export type TechnicalPricePoint = PricePoint & {
     macd: number | null;
     macdSignal: number | null;
     macdHistogram: number | null;
+    volatility: number | null;
 };
 
 export function calculateSMA(
@@ -231,6 +234,80 @@ function calculateRSIValue(
     );
 }
 
+export function calculateVolatility(
+    prices: number[],
+    period: number = 20,
+    annualizationFactor: number = 252
+): (number | null)[] {
+    // Make sure we only work with valid finite prices
+    const cleanPrices = prices.filter(
+        (price): price is number =>
+            typeof price === "number" &&
+            Number.isFinite(price) &&
+            price > 0
+    );
+
+    const result: (number | null)[] = Array(
+        cleanPrices.length
+    ).fill(null);
+
+    if (cleanPrices.length <= period) {
+        return result;
+    }
+
+    const returns: (number | null)[] = Array(
+        cleanPrices.length
+    ).fill(null);
+
+    // Calculate Logarithmic returns
+    for (let i = 1; i < cleanPrices.length; i++) {
+        returns[i] = Math.log(
+            cleanPrices[i] / prices[i - 1]
+        );
+    }
+
+    // Calculate rolling annualized volatility
+    for (let i = period; i < cleanPrices.length; i++) {
+        const window = returns.slice(
+            i - period + 1,
+            i + 1
+        );
+
+        const validReturns = window.filter(
+            (value): value is number =>
+                value !== null &&
+                Number.isFinite(value)
+        );
+
+        if (validReturns.length < period) {
+            continue;
+        }
+
+        const mean =
+            validReturns.reduce(
+                (sum, value) => sum + value,
+                0
+            ) / validReturns.length;
+
+        const variance =
+            validReturns.reduce(
+                (sum, value) =>
+                    sum + Math.pow(value - mean, 2),
+                0
+            ) /
+            (validReturns.length - 1);
+
+        const dailyVolatility =
+            Math.sqrt(variance);
+        
+        result[i] =
+            dailyVolatility *
+            Math.sqrt(annualizationFactor);
+    }
+
+    return result;
+}
+
 export function calculateTechnicalIndicators(
     data: PricePoint[]
 ): TechnicalPricePoint[] {
@@ -259,6 +336,11 @@ export function calculateTechnicalIndicators(
         macdHistogram,
     } = calculateMACD(prices);
 
+    const volatility = calculateVolatility(
+        prices,
+        20
+    );
+
     return sortedData.map((item, index) => ({
         ...item,
         sma20: sma20[index],
@@ -270,5 +352,6 @@ export function calculateTechnicalIndicators(
         macd: macd[index],
         macdSignal: macdSignal[index],
         macdHistogram: macdHistogram[index],
+        volatility: volatility[index],
     }));
 }
