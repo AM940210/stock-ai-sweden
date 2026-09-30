@@ -49,6 +49,31 @@ model HistoricalPrice {
   @@index([symbol, date])
 }
 
+model CompanyProfile {
+  id String @id @default(cuid())
+
+  symbol String @unique
+
+  companyName String
+  price Float
+  change Float
+  changePercentage Float
+
+  exchange String
+  industry String
+  sector String
+
+  website String
+  image String
+  ceo String
+
+  marketCap Float
+  country String
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
 model Recommendation {
   id String @id @default(cuid())
 
