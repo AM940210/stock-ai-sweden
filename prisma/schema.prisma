@@ -74,6 +74,30 @@ model CompanyProfile {
   createdAt DateTime @default(now())
 }
 
+model IncomeStatement {
+  id String @id @default(cuid())
+
+  symbol String
+  date DateTime
+
+  fiscalYear String
+  period String
+  reportedCurrency String
+
+  revenue Float
+  grossProfit Float
+  operatingIncome Float
+  ebitda Float
+  netIncome Float
+  epsDiluted Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([symbol, date])
+  @@unique([symbol])
+}
+
 model Recommendation {
   id String @id @default(cuid())
 
