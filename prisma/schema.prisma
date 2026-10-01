@@ -123,6 +123,30 @@ model FinancialMetric {
   updatedAt DateTime @updatedAt
 }
 
+model StockNews {
+  id String @id @default(cuid())
+
+  uuid String @unique
+
+  symbol String
+
+  title String
+  description String?
+  snippet String?
+
+  url String
+  imageUrl String?
+
+  publishedAt DateTime
+  source String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([symbol])
+  @@index([symbol, publishedAt])
+}
+
 model Recommendation {
   id String @id @default(cuid())
 
