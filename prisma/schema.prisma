@@ -46,7 +46,6 @@ model HistoricalPrice {
 
   symbol  String
   date    DateTime
-
   open    Float
   high    Float
   low     Float
